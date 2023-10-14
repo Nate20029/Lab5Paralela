@@ -103,26 +103,24 @@ void Build_mpi_type(
       int*           n_p            /* in  */,
       MPI_Datatype*  input_mpi_t_p  /* out */) {
 
-   /*
-    * Los enunciados están en desorden.  Colóquelos en el orden
-    * correcto para que Build_mpi_type cree el tipo derivado
-    */
-
-   array_of_displacements[1] = b_addr-a_addr;
-   array_of_displacements[2] = n_addr-a_addr; 
+   MPI_Aint a_addr, b_addr, n_addr;
    int array_of_blocklengths[3] = {1, 1, 1};
    MPI_Aint array_of_displacements[3] = {0};
-   MPI_Aint a_addr, b_addr, n_addr;
    MPI_Datatype array_of_types[3] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT};
+
    MPI_Get_address(a_p, &a_addr);
    MPI_Get_address(b_p, &b_addr);
    MPI_Get_address(n_p, &n_addr);
-   MPI_Type_commit(input_mpi_t_p);
+
+   array_of_displacements[1] = b_addr - a_addr;
+   array_of_displacements[2] = n_addr - a_addr;
+
    MPI_Type_create_struct(3, array_of_blocklengths, 
-         array_of_displacements, array_of_types,
-         input_mpi_t_p);
-   
-}  /* Build_mpi_type */
+         array_of_displacements, array_of_types, input_mpi_t_p);
+
+   MPI_Type_commit(input_mpi_t_p);
+}
+ /* Build_mpi_type */
 
 /*------------------------------------------------------------------
  * Function:     Get_input
