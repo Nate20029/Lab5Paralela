@@ -132,31 +132,23 @@ void Build_mpi_type(
  *               b_p:  pointer to right endpoint               
  *               n_p:  pointer to number of trapezoids
  */
-void Get_input(
-      int      my_rank  /* in  */, 
-      int      comm_sz  /* in  */, 
-      double*  a_p      /* out */, 
-      double*  b_p      /* out */,
-      int*     n_p      /* out */) {
+void Get_input(int my_rank, int comm_sz, double* a_p, double* b_p, int* n_p) {
    MPI_Datatype input_mpi_t;
-
-   Build_mpi_type(a_p, b_p, n_p, &input_mpi_t);
 
    if (my_rank == 0) {
       printf("Enter a, b, and n\n");
       scanf("%lf %lf %d", a_p, b_p, n_p);
    }
 
-   /*
-    * Ahora puede usar el tipo derivado de MPI para reemplazar
-    * varios mensajes por uno solo
-    */
-   MPI_Bcast(a_p, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-   MPI_Bcast(b_p, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-   MPI_Bcast(n_p, 1, MPI_INT, 0, MPI_COMM_WORLD);
+   // Crear una estructura para enviar los valores a través de MPI
+   Build_mpi_type(a_p, b_p, n_p, &input_mpi_t);
 
+   // Broadcast la estructura en lugar de los valores individuales
+   MPI_Bcast(a_p, 1, input_mpi_t, 0, MPI_COMM_WORLD);
+
+   // Liberar el tipo de datos MPI
    MPI_Type_free(&input_mpi_t);
-}  /* Get_input */
+}
 
 /*------------------------------------------------------------------
  * Function:     Trap
